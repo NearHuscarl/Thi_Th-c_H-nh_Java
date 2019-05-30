@@ -1,1 +1,4 @@
-# Thi_Th-c_H-nh_Java
+# Thi_Thuc_Hanh_Java
+
+- Họ tên: Nguyễn Khánh Nguyên
+- MSSV: 16520846
