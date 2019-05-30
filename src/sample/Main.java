@@ -1,6 +1,7 @@
 package sample;
 
-import com.sun.prism.PhongMaterial;
+import javafx.scene.paint.PhongMaterial;
+import com.sun.prism.TextureMap;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,7 +31,7 @@ public class Main extends Application {
         Stage window = primaryStage;
         window.setTitle("Square 3D");
 
-        Box box = createCube(150);
+        Box box = createCube(150, Color.YELLOW, Color.GREEN);
 
         Slider sliderX = createSlider(0, 0, 360);
         Slider sliderY = createSlider(0, 0, 360);
@@ -105,13 +106,18 @@ public class Main extends Application {
         return slider;
     }
 
-    private Box createCube(int size) {
+    private Box createCube(int size, Color c1, Color c2) {
         Box box = new Box();
 
         //Setting the properties of the Box
         box.setWidth(size);
         box.setHeight(size);
         box.setDepth(size);
+
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseColor(c1);
+        material.setSpecularColor(c2);
+        box.setMaterial(material);
 
         return box;
     }
