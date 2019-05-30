@@ -1,5 +1,8 @@
 package sample;
 
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.Transition;
 import javafx.scene.paint.PhongMaterial;
 import com.sun.prism.TextureMap;
 import javafx.application.Application;
@@ -21,8 +24,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import java.util.List;
+import java.util.Random;
 
 public class Main extends Application {
+    Random rand = new Random();
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -32,6 +40,7 @@ public class Main extends Application {
         window.setTitle("Square 3D");
 
         Box box = createCube(150, Color.YELLOW, Color.GREEN);
+        randomColor(box);
 
         Slider sliderX = createSlider(0, 0, 360);
         Slider sliderY = createSlider(0, 0, 360);
@@ -52,6 +61,10 @@ public class Main extends Application {
             double newDouble = Double.parseDouble(newVal.toString());
             rotate(box, "z", newDouble - oldDouble);
         });
+
+        sliderX.setValue(25);
+        sliderY.setValue(40);
+        sliderZ.setValue(0);
 
         Label labelX = new Label("X Axis");
         Label labelY = new Label("Y Axis");
@@ -89,6 +102,64 @@ public class Main extends Application {
         //Adding scene to the stage
         window.setScene(scene);
         window.show();
+    }
+
+    private void randomColor(Box box) {
+        Animation animation = new Transition() {
+            {
+                setCycleDuration(Duration.millis(1000));
+                setInterpolator(Interpolator.EASE_OUT);
+                setCycleCount(Transition.INDEFINITE);
+            }
+
+            private double updateColor(double color, int key) {
+                double newColor = color + operators[key] * 0.01;
+                return Clamp(newColor, 0, 1);
+            }
+
+            private Color diffuseColor = Color.RED;
+            private Color specularColor = Color.BLACK;
+            private int[] operators = {1, 1, 1, 1, 1, 1};
+            private double oldFrac;
+            @Override
+            protected void interpolate(double frac) {
+                double red1, green1, blue1;
+                double red2, green2, blue2;
+
+                if (frac < oldFrac) {
+                    for (int i = 0; i < operators.length; i++) {
+                        operators[i] = rand.nextFloat() > 0.5 ? 1 : -1;
+                    }
+                    System.out.println(operators);
+                    System.out.println("Done");
+                }
+
+                red1 = updateColor(diffuseColor.getRed(), 0);
+                green1 = updateColor(diffuseColor.getGreen(), 1);
+                blue1 = updateColor(diffuseColor.getBlue(), 2);
+
+                red2 = updateColor(specularColor.getRed(), 3);
+                green2 = updateColor(specularColor.getGreen(), 4);
+                blue2 = updateColor(specularColor.getBlue(), 5);
+
+                diffuseColor = new Color(red1, green1, blue1, 1);
+                specularColor = new Color(red2, green2, blue2, 1);
+
+                PhongMaterial material = new PhongMaterial();
+                material.setDiffuseColor(diffuseColor);
+                material.setSpecularColor(specularColor);
+                box.setMaterial(material);
+
+                oldFrac = frac;
+            }
+
+
+        };
+        animation.play();
+    }
+
+    private double Clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     private Slider createSlider(int value, int min, int max) {
